@@ -68,7 +68,7 @@ defmodule OpenApiSpex.Schemax do
 
   defmacro __using__(_) do
     quote do
-      import OpenApiSpex.Schemax, only: [schema: 2, embedded_schema: 2, wrapper: 2]
+      import OpenApiSpex.Schemax, only: [schema: 1, schema: 2, embedded_schema: 2, wrapper: 2]
       alias OpenApiSpex.Schema
       @required []
       @schema_type :object
@@ -78,18 +78,15 @@ defmodule OpenApiSpex.Schemax do
   @doc """
 
   """
-  defmacro schema(title, do: block) do
+  defmacro schema(title \\ nil, do: block) do
     fields = Parser.parse_body(block)
 
-    {properties, rest_fields} =
-      fields
-      |> Enum.split_with(fn
-        {:property, _} -> true
-        _ -> false
-      end)
+    {properties, rest_fields} = extract_properties(fields, __CALLER__)
 
-    properties = build_properties(properties, __CALLER__)
-    rest_fields = build_rest_fields(rest_fields)
+    title =
+      if title,
+        do: title,
+        else: __CALLER__.module |> Module.split() |> List.last()
 
     quote do
       def schema do
@@ -121,15 +118,7 @@ defmodule OpenApiSpex.Schemax do
 
     fields = Parser.parse_body(block)
 
-    {properties, rest_fields} =
-      fields
-      |> Enum.split_with(fn
-        {:property, _} -> true
-        _ -> false
-      end)
-
-    properties = build_properties(properties, __CALLER__)
-    rest_fields = build_rest_fields(rest_fields)
+    {properties, rest_fields} = extract_properties(fields, __CALLER__)
 
     quote do
       def unquote(function_name)() do
@@ -143,6 +132,20 @@ defmodule OpenApiSpex.Schemax do
         struct(Schema, [properties: Map.new(properties), type: :object] ++ unquote(rest_fields))
       end
     end
+  end
+
+  defp extract_properties(fields, caller) do
+    {properties, rest_fields} =
+      fields
+      |> Enum.split_with(fn
+        {:property, _} -> true
+        _ -> false
+      end)
+
+    properties = build_properties(properties, caller)
+    rest_fields = build_rest_fields(rest_fields)
+
+    {properties, rest_fields}
   end
 
   defp build_properties(properties, caller) do

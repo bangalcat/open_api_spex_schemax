@@ -106,6 +106,14 @@ defmodule OpenApiSpex.SchemaxTest do
     end
   end
 
+  defmodule NoTitleSchema do
+    use OpenApiSpex.Schemax
+
+    schema do
+      property :id, :integer
+    end
+  end
+
   describe "validate basic schema creation from macro" do
     test "it generates `schema/0` function." do
       assert function_exported?(SimpleUser, :schema, 0)
@@ -142,6 +150,11 @@ defmodule OpenApiSpex.SchemaxTest do
 
       assert %Schema{properties: %{multi: %Schema{oneOf: [SimpleUser, OptionFieldSchema]}}} =
                schema
+    end
+
+    test "it generates title when doesn't given title argument" do
+      schema = NoTitleSchema.schema()
+      assert %Schema{title: "NoTitleSchema"} = schema
     end
   end
 

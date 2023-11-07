@@ -1,4 +1,5 @@
 api_spec_fields = [
+  schema: 1,
   schema: 2,
   embedded_schema: 2,
   property: 2,
