@@ -9,6 +9,16 @@ defmodule OpenApiSpex.SchemaxTest do
       property :id, :integer
       property :name, :string
       property :is_verified, :boolean
+      property :email, OpenApiSpex.SchemaxTest.EmailString
+    end
+  end
+
+  defmodule EmailString do
+    use OpenApiSpex.Schemax
+
+    @schema_type :string
+    schema "EmailString" do
+      format "email"
     end
   end
 
@@ -129,6 +139,7 @@ defmodule OpenApiSpex.SchemaxTest do
             into: %{} do
           {field, %Schema{type: type}}
         end
+        |> Map.put(:email, EmailString)
 
       assert %Schema{properties: ^expected_properties} = SimpleUser.schema()
     end
