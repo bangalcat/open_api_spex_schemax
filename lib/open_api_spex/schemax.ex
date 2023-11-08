@@ -92,7 +92,6 @@ defmodule OpenApiSpex.Schemax do
       def schema do
         properties =
           unquote(properties)
-          |> Macro.prewalk(&Macro.expand(&1, __ENV__))
           |> Enum.map(fn
             {k, kwlist} when is_list(kwlist) -> {k, struct(Schema, kwlist)}
             other -> other
@@ -125,7 +124,6 @@ defmodule OpenApiSpex.Schemax do
       def unquote(function_name)() do
         properties =
           unquote(properties)
-          |> Macro.prewalk(&Macro.expand(&1, __ENV__))
           |> Enum.map(fn
             {k, kwlist} when is_list(kwlist) -> {k, struct(Schema, kwlist)}
             other -> other
