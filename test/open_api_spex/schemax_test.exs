@@ -192,6 +192,16 @@ defmodule OpenApiSpex.SchemaxTest do
 
       assert %Schema{type: :array, items: SimpleUser} = schema
     end
+
+    test "non-object type schema can have nil properties" do
+      schema1 = OtherTypeSchema.schema()
+      schema2 = OtherTypeSchema2.schema()
+      schema3 = EmailString.schema()
+
+      for schema <- [schema1, schema2, schema3] do
+        assert %Schema{properties: nil} = schema
+      end
+    end
   end
 
   describe "Validation for delayed evaluation" do

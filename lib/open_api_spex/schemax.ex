@@ -90,19 +90,16 @@ defmodule OpenApiSpex.Schemax do
 
     quote do
       def schema do
-        properties =
+        properties_map =
           unquote(properties)
-          |> Enum.map(fn
-            {k, kwlist} when is_list(kwlist) -> {k, struct(Schema, kwlist)}
-            other -> other
-          end)
+          |> OpenApiSpex.Schemax.maybe_properties_map()
 
         struct(
           Schema,
           [
             title: unquote(title),
             type: @schema_type,
-            properties: Map.new(properties),
+            properties: properties_map,
             required: @required
           ] ++
             unquote(rest_fields)
@@ -122,14 +119,11 @@ defmodule OpenApiSpex.Schemax do
 
     quote do
       def unquote(function_name)() do
-        properties =
+        properties_map =
           unquote(properties)
-          |> Enum.map(fn
-            {k, kwlist} when is_list(kwlist) -> {k, struct(Schema, kwlist)}
-            other -> other
-          end)
+          |> OpenApiSpex.Schemax.maybe_properties_map()
 
-        struct(Schema, [properties: Map.new(properties), type: :object] ++ unquote(rest_fields))
+        struct(Schema, [properties: properties_map, type: :object] ++ unquote(rest_fields))
       end
     end
   end
@@ -172,6 +166,16 @@ defmodule OpenApiSpex.Schemax do
 
       otherwise ->
         otherwise
+    end)
+  end
+
+  def maybe_properties_map([]), do: nil
+
+  def maybe_properties_map(properties) do
+    properties
+    |> Map.new(fn
+      {k, kwlist} when is_list(kwlist) -> {k, struct(Schema, kwlist)}
+      other -> other
     end)
   end
 
