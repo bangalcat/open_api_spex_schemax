@@ -4,7 +4,7 @@ defmodule OpenApiSpex.Schemax do
 
   ## `schema` macro
 
-  For schema definition, use `schema/2` macro. Define once per module.
+  To define schema, use `schema/2` macro. It must be used once in a module.
 
   `schema/2` macro define a function named `schema/0`, which return a `%OpenApiSpex.Schema{}` struct.
   The first argument of `schema/2` macro is required and it become `:title` field of the struct.
@@ -81,7 +81,7 @@ defmodule OpenApiSpex.Schemax do
   defmacro schema(title \\ nil, do: block) do
     fields = Parser.parse_body(block)
 
-    {properties, rest_fields} = extract_properties(fields, __CALLER__)
+    {properties, rest_fields} = extract_properties(fields)
 
     title =
       if title,
@@ -118,7 +118,7 @@ defmodule OpenApiSpex.Schemax do
 
     fields = Parser.parse_body(block)
 
-    {properties, rest_fields} = extract_properties(fields, __CALLER__)
+    {properties, rest_fields} = extract_properties(fields)
 
     quote do
       def unquote(function_name)() do
@@ -134,7 +134,7 @@ defmodule OpenApiSpex.Schemax do
     end
   end
 
-  defp extract_properties(fields, caller) do
+  defp extract_properties(fields) do
     {properties, rest_fields} =
       fields
       |> Enum.split_with(fn
@@ -142,13 +142,13 @@ defmodule OpenApiSpex.Schemax do
         _ -> false
       end)
 
-    properties = build_properties(properties, caller)
+    properties = build_properties(properties)
     rest_fields = build_rest_fields(rest_fields)
 
     {properties, rest_fields}
   end
 
-  defp build_properties(properties, caller) do
+  defp build_properties(properties) do
     properties
     |> Enum.map(fn
       {:property, {name, schema_fields}} when is_list(schema_fields) ->
@@ -162,7 +162,6 @@ defmodule OpenApiSpex.Schemax do
       {:property, {name, stuff}} ->
         {name, stuff}
     end)
-    |> Macro.prewalk(&Macro.expand(&1, caller))
   end
 
   defp build_rest_fields(fields) do
