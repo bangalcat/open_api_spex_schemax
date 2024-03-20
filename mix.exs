@@ -1,7 +1,7 @@
 defmodule OpenApiSpexSchemax.MixProject do
   use Mix.Project
 
-  @vsn "0.0.1"
+  @vsn "0.1.0"
 
   def project do
     [
@@ -10,6 +10,7 @@ defmodule OpenApiSpexSchemax.MixProject do
       version: @vsn,
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
+      source_url: "https://github.com/bangalcat/open_api_spex_schemax",
       package: package(),
       deps: deps()
     ]
@@ -34,7 +35,7 @@ defmodule OpenApiSpexSchemax.MixProject do
   defp package do
     [
       licenses: ["Apache-2.0"],
-      links: %{}
+      links: %{"Github" => "https://github.com/bangalcat/open_api_spex_schemax"}
     ]
   end
 end
